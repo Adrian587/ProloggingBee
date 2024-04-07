@@ -8,7 +8,7 @@
 
 mandatoryLetter(0, p).
 availableLetters(0, [p,e,l,h,g,i,o]).
-numWords(0, 2).
+numWords(0, 37).
 word(0, elope).
 word(0, epee).
 word(0, epilog).
@@ -49,6 +49,7 @@ word(0, pope).
 
 mandatoryLetter(1, c).
 availableLetters(1, [a,m,e,d,i,c,t]).
+numWords(1, 75).
 word(1, acacia).
 word(1, academe).
 word(1, academia).
