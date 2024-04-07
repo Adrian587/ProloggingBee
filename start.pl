@@ -1,8 +1,13 @@
+:- dynamic guessedWord/1.
 :- include(words).
 :- use_module(library(dif)). % Add import statement for dif/2 predicate
 
-guessedWords([]).
-
+%:- discontiguous mandatoryLetter/2.
+%:- discontiguous availableLetters/2.
+% :- discontiguous word/2.
+:-style_check(-discontiguous).
+% referred to https://github.students.cs.ubc.ca/linky98/Loldle for state management
+guessedWord("").
 % States:
 %   - mandatory letter
 % MandatoryLetter(X).
@@ -16,24 +21,48 @@ guessedWords([]).
 % - Init list of words guessed 
 % - Display stuff
 
-%initGame(Ans) :-
-%    write("Welcome to ProloggingBee! Inspired by the NYTimes hit game Spelling Bee...but in Prolog!"),
-%    nl,
-%    random_between(0,1,CurrentDay), % get random day
-%    play(CurrentDay).
+initGame(Ans) :-
+    retractall(guessedWord(_)),
+    write("Welcome to ProloggingBee! Inspired by the NYTimes hit game Spelling Bee...but in Prolog!"),
+    nl,
+    random_between(0,1,CurrentDay), % get random day
+    play(CurrentDay).
     
 
 play(CurrentDay) :-
-    write("Ask me: "), flush_output(current_output), 
-    read_line_to_string(user_input, St),
-    notin(St, ["quit", "quit.", "q", "q."]), % quit or q ends interaction
-    split_string(St, " -", " ,?.!-", Ln), % ignore punctuation
-    random_between(0,1,CurrentDay), % get random day
+    printGuessedWords, nl,
     printGrid(CurrentDay),
+    write("Guess A Word: "), flush_output(current_output), 
+    read(St),
+    notin(St, [quit, quit, q, q]), % quit or q ends interaction
     (checkWordValidGuess(St, CurrentDay) ->
-    write("No more answers\n").
+    write("Good Guess Broski\n"), 
+    assert(guessedWord(St)),
+    countGuessedWords(NumGuessedWords),
+    write(NumGuessedWords), nl,
+    checkIfWon(Day, NumGuessedWords),
+    play(CurrentDay) ; play(CurrentDay)).
 
-% IMPLEMENT FUNCTION to retrieve definitions
+% IMPLEMENT FUNCTION to retrieve definitions (1 to guess word, 2 to get definition of already guessed word, and q to quit)
+
+printGuessedWords :- 
+    forall(guessedWord(Word), (write(Word), nl)).
+
+countGuessedWords(NumGuessedWords) :- 
+    findall(_, guessedWord(_), GuessedWords),
+    length(GuessedWords, NumGuessedWords).
+
+checkIfWon(Day, NumGuessedWords) :-
+    numWords(Day, NumWordsNeeded),
+    NumGuessedWords \= NumWordsNeeded.
+
+checkIfWon(Day, NumGuessedWords) :-
+    numWords(Day, NumWordsNeeded),
+    NumGuessedWords == NumWordsNeeded,
+    write("Congratulations! You've guessed all of the possible words."),
+    nl,
+    write("Thanks for playing bruh"),
+    halt(0). 
 
 printGrid(Day) :-
     mandatoryLetter(Day, MandatoryLetter),
@@ -45,14 +74,17 @@ printGrid(Day) :-
     nth0(3, NonMandatoryLetters, Third),
     nth0(4, NonMandatoryLetters, Fourth),
     nth0(5, NonMandatoryLetters, Fifth),
-    write(Zeroth), nl,
-    write(First), nl,
-    write(Second), nl,
-    write(MandatoryLetter), nl,
-    write(Third), nl,
-    write(Fourth), nl,
-    write(Fifth), nl,
-    write(Sixth), nl.
+    write("      "), writeGrey(Zeroth), nl,
+    write("   "), writeGrey(First), write("     "), writeGrey(Second),  nl,
+    write("      "), write('\e[43m'), write(MandatoryLetter), write('\e[0m'), nl,
+    write("   "), writeGrey(Third), write("     "), writeGrey(Fourth), nl,
+    write("      "), writeGrey(Fifth), nl.
+
+writeGrey(ToWrite) :-
+    write('\e[100m'),
+    write('\e[30m'),
+    write(ToWrite),
+    write('\e[0m').
 
 
 % notin(E,L) is true if E is not in list L. Allows for E or elements of L to be variables.
@@ -61,6 +93,9 @@ notin(_,[]).
 notin(E,[H|T]) :-
     dif(E,H),
     notin(E,T).
+
+
+% Checking functionality
 
 checkLength(Word) :-
     string_length(Word, Length),
@@ -106,6 +141,13 @@ checkWordIsAWord(Word, Day) :-
     write("not a real word bruh"),
     false.
 
+checkWordAlreadyGuessed(Word) :-
+    \+ guessedWord(Word).
+
+checkWordAlreadyGuessed(Word) :-
+    guessedWord(Word),
+    write("Word already guessed bruh"),
+    false.
 
 % Word is of type String
 % checkWordValidGuess(bruh, [b, r, u, h], b).
@@ -117,5 +159,6 @@ checkWordValidGuess(Word, Day) :-
     once(checkContainsMandatoryLetter(Word, MandatoryLetter)), % only check mandatory letters once
     string_chars(Word, Chars),
     once(checkWordHasOnlyAvailableLetters(Chars, AvailableLetters)), % only check if word is using available letters once
-    checkWordIsAWord(Word, Day).
+    checkWordIsAWord(Word, Day),
+    checkWordAlreadyGuessed(Word).
     

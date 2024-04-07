@@ -2,11 +2,13 @@
 
 % mandatoryLetter(<day>, <mandatory letter>).
 % availableLetters(<day>, <available letters>).
+% numWords(<day>, <number of words>)
 % word(<day>, <word>). 
 
 
 mandatoryLetter(0, p).
 availableLetters(0, [p,e,l,h,g,i,o]).
+numWords(0, 2).
 word(0, elope).
 word(0, epee).
 word(0, epilog).
