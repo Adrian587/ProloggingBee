@@ -1,14 +1,24 @@
-% Facts 
+% Knowledge Base for the game.
 
+% each day's mandatory letter.
 % mandatoryLetter(<day>, <mandatory letter>).
+mandatoryLetter(0, p).
+mandatoryLetter(1, c).
+
+% the available letters for each day's game.
 % availableLetters(<day>, <available letters>).
+availableLetters(0, [p,e,l,h,g,i,o]).
+availableLetters(1, [a,m,e,d,i,c,t]).
+
+% the total number of possible words for each day's game.
 % numWords(<day>, <number of words>)
+numWords(0, 37).
+numWords(1, 75).
+
+% each word predicate represents the current day of the game and the word itself.
+% for example, the game on day 0 contains all words with word(0, _).
 % word(<day>, <word>). 
 
-
-mandatoryLetter(0, p).
-availableLetters(0, [p,e,l,h,g,i,o]).
-numWords(0, 4).
 word(0, elope).
 word(0, epee).
 word(0, epilog).
@@ -47,9 +57,7 @@ word(0, pool).
 word(0, poop).
 word(0, pope).
 
-mandatoryLetter(1, c).
-availableLetters(1, [a,m,e,d,i,c,t]).
-numWords(1, 75).
+
 word(1, acacia).
 word(1, academe).
 word(1, academia).
