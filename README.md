@@ -8,4 +8,4 @@ To play:
 
 `[start].`
 
-`initGame(y)`
+`initGame.`

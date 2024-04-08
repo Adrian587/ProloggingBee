@@ -17,7 +17,7 @@ guessedWord("").
 % - Retracts all guessedWords (new empty state)
 % - Chooses a random day to select some set of letters
 % - Runs play
-initGame(Ans) :-
+initGame :-
     retractall(guessedWord(_)),
     write("Welcome to ProloggingBee! Inspired by the NYTimes hit game Spelling Bee...but in Prolog!"),
     nl,
