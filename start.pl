@@ -21,6 +21,8 @@ guessedWord("").
 % - Init list of words guessed 
 % - Display stuff
 
+
+
 initGame(Ans) :-
     retractall(guessedWord(_)),
     write("Welcome to ProloggingBee! Inspired by the NYTimes hit game Spelling Bee...but in Prolog!"),
@@ -32,16 +34,17 @@ initGame(Ans) :-
 play(CurrentDay) :-
     % printGuessedWords, nl,
     printGrid(CurrentDay),
-    write("Guess A Word: "), flush_output(current_output), 
+    write("Guess A Word Using Lowercase Or Type 'print' To See Guesses. Add a '.' at the end of your input: "), flush_output(current_output), 
     read(St),
     notin(St, [quit, quit, q, q]), % quit or q ends interaction
+    (St = print -> printGuessedWords, play(CurrentDay) ; 
     (checkWordValidGuess(St, CurrentDay) ->
     write("Good Guess Broski\n"), 
     assert(guessedWord(St)),
     countGuessedWords(NumGuessedWords),
-    printRanking(CurrentDay, NumGuessedWords), write(NumGuessedWords), nl,
-    checkIfWon(Day, NumGuessedWords),
-    play(CurrentDay) ; play(CurrentDay)).
+    printRanking(CurrentDay, NumGuessedWords), write(" | Guessed Words: "), write(NumGuessedWords), nl,
+    checkIfWon(CurrentDay, NumGuessedWords),
+    play(CurrentDay) ; play(CurrentDay))).
 
 % IMPLEMENT FUNCTION to retrieve definitions (1 to guess word, 2 to get definition of already guessed word, and q to quit)
 
@@ -57,7 +60,7 @@ checkIfWon(Day, NumGuessedWords) :-
     numWords(Day, NumWordsNeeded),
     NumGuessedWords == NumWordsNeeded,
     write("Congratulations! You have guessed all of the possible words."), nl,
-    write("Thanks for playing bruh"),
+    write("Thanks for playing bruh"), nl,
     halt(0). 
 
 printGrid(Day) :-
@@ -78,17 +81,13 @@ printGrid(Day) :-
 
 
 printGuessedWords :- 
-    write("Words Guessed: "),
-    forall(guessedWord(Word), (printtGuessedWord(Word)).
+  write("Words Guessed: "), nl,
+  findall(_, guessedWord(_), GuessedWords),
+  forall(guessedWord(Word), (printGuessedWord(Word))),
+  write("------------"), nl.
 
-%printGuessedWord(Word) :-
-%   write('\e[43m]'),
-%   write(Word),
-%   write('\e[43m]'),
-%   nl,
-%   write("------------")
-%   nl.
-
+printGuessedWord(Word) :-
+  write(Word), nl.
 
 writeGrey(ToWrite) :-
     write('\e[100m'),
@@ -154,12 +153,12 @@ checkLength(Word) :-
 checkLength(Word) :-
     string_length(Word, Length),
     Length < 3,
-    write("not long enough bruh!"),
+    write("not long enough bruh!"), nl,
     false.
 
 checkContainsMandatoryLetter(Word, MandatoryLetter) :-
     \+ sub_string(Word, _, 1, _, MandatoryLetter),
-    write("does not contain mandatory letter"),
+    write("does not contain mandatory letter"), nl,
     false.    
     
 % Check if word contains mandatory letter
@@ -174,7 +173,7 @@ checkWordHasOnlyAvailableLetters("", _).
 checkWordHasOnlyAvailableLetters([Head | Tail], AvailableLetters) :-
     (member(Head, AvailableLetters) -> 
     checkWordHasOnlyAvailableLetters(Tail, AvailableLetters) ; 
-    write("Word contains unavailable letters bruh"),
+    write("Word contains unavailable letters bruh"), nl,
     false).
 
 checkWordIsAWord(Word, Day) :-
@@ -182,7 +181,7 @@ checkWordIsAWord(Word, Day) :-
 
 checkWordIsAWord(Word, Day) :-
     \+ word(Day, Word),
-    write("not a real word bruh"),
+    write("not a real word bruh"), nl,
     false.
 
 checkWordAlreadyGuessed(Word) :-
@@ -190,7 +189,7 @@ checkWordAlreadyGuessed(Word) :-
 
 checkWordAlreadyGuessed(Word) :-
     guessedWord(Word),
-    write("Word already guessed bruh"),
+    write("Word already guessed bruh"), nl,
     false.
 
 % Word is of type String
