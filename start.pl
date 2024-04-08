@@ -30,7 +30,7 @@ initGame(Ans) :-
     
 
 play(CurrentDay) :-
-    printGuessedWords, nl,
+    % printGuessedWords, nl,
     printGrid(CurrentDay),
     write("Guess A Word: "), flush_output(current_output), 
     read(St),
@@ -39,14 +39,11 @@ play(CurrentDay) :-
     write("Good Guess Broski\n"), 
     assert(guessedWord(St)),
     countGuessedWords(NumGuessedWords),
-    write(NumGuessedWords), nl,
+    printRanking(CurrentDay, NumGuessedWords), write(NumGuessedWords), nl,
     checkIfWon(Day, NumGuessedWords),
     play(CurrentDay) ; play(CurrentDay)).
 
 % IMPLEMENT FUNCTION to retrieve definitions (1 to guess word, 2 to get definition of already guessed word, and q to quit)
-
-printGuessedWords :- 
-    forall(guessedWord(Word), (write(Word), nl)).
 
 countGuessedWords(NumGuessedWords) :- 
     findall(_, guessedWord(_), GuessedWords),
@@ -59,8 +56,7 @@ checkIfWon(Day, NumGuessedWords) :-
 checkIfWon(Day, NumGuessedWords) :-
     numWords(Day, NumWordsNeeded),
     NumGuessedWords == NumWordsNeeded,
-    write("Congratulations! You've guessed all of the possible words."),
-    nl,
+    write("Congratulations! You have guessed all of the possible words."), nl,
     write("Thanks for playing bruh"),
     halt(0). 
 
@@ -80,6 +76,20 @@ printGrid(Day) :-
     write("   "), writeGrey(Third), write("     "), writeGrey(Fourth), nl,
     write("      "), writeGrey(Fifth), nl.
 
+
+printGuessedWords :- 
+    write("Words Guessed: "),
+    forall(guessedWord(Word), (printtGuessedWord(Word)).
+
+%printGuessedWord(Word) :-
+%   write('\e[43m]'),
+%   write(Word),
+%   write('\e[43m]'),
+%   nl,
+%   write("------------")
+%   nl.
+
+
 writeGrey(ToWrite) :-
     write('\e[100m'),
     write('\e[30m'),
@@ -94,7 +104,41 @@ notin(E,[H|T]) :-
     dif(E,H),
     notin(E,T).
 
+% this function prints the ranking of the player based on how many words they have gotten
 
+% found less than 25% of words
+printRanking(Day, NumWordsGuessed) :-
+    numWords(Day, TotalWords),
+    Result is NumWordsGuessed / TotalWords,
+    Quartile is Result * 100,
+    Quartile =< 25,
+    write("Rank: Good").
+
+% found more than 25 of words but less than 50%
+printRanking(Day, NumWordsGuessed) :-
+    numWords(Day, TotalWords),
+    Result is NumWordsGuessed / TotalWords,
+    Quartile is Result * 100,
+    Quartile > 25,
+    Quartile =< 50,
+    write("Rank: Great").
+% found more than 50% of words but less than 75%
+printRanking(Day, NumWordsGuessed) :-
+    numWords(Day, TotalWords),
+    Result is NumWordsGuessed / TotalWords,
+    Quartile is Result * 100,
+    Quartile > 50,
+    Quartile =< 75,
+    write("Rank: Amazing").
+% found more than 75% of words but less than 100%
+printRanking(Day, NumWordsGuessed) :-
+    numWords(Day, TotalWords),
+    Result is NumWordsGuessed / TotalWords,
+    Quartile is Result * 100,
+    Quartile > 75,
+    Quartile =< 100,
+    write("Rank: The Boss").
+    
 % Checking functionality
 
 checkLength(Word) :-
