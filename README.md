@@ -3,6 +3,9 @@
 NYT Spelling Bee but in Prolog bruh
 
 To play:
-`swipl`
+
+`swipl` 
+
 `[start].`
+
 `initGame(y)`
